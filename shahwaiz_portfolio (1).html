@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shahwaiz Nadeem — Video Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --accent: #e8c97a;
+    --accent2: #c9a84c;
+    --text: #f0ede8;
+    --muted: #888880;
+    --border: rgba(255,255,255,0.08);
+    --card: #141414;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 4rem;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(232,201,122,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 12vw, 11rem);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+  .hero-name span { color: var(--accent); }
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin-top: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+  .btn {
+    padding: 0.8rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0a;
+    border: 2px solid var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-reel {
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1s forwards;
+  }
+  .reel-placeholder {
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 16/9;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .reel-placeholder:hover { border-color: var(--accent); }
+  .reel-placeholder::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(232,201,122,0.03) 0%, transparent 100%);
+  }
+  .play-btn {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.3s;
+  }
+  .reel-placeholder:hover .play-btn { transform: scale(1.1); }
+  .play-btn svg { fill: #0a0a0a; width: 24px; }
+  .reel-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 6rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1;
+    color: var(--text);
+    margin-bottom: 3rem;
+  }
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .about-text p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.9;
+    margin-bottom: 1rem;
+  }
+  .about-text p strong { color: var(--text); font-weight: 500; }
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 0.4rem;
+  }
+  .contact-info {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .contact-item a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
+  .contact-item a:hover { color: var(--accent); }
+  .contact-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* EXPERIENCE */
+  .exp-list { display: flex; flex-direction: column; gap: 0; }
+  .exp-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 3rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s;
+  }
+  .exp-item:first-child { border-top: 1px solid var(--border); }
+  .exp-meta { }
+  .exp-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+  .exp-company {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .exp-role {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--text);
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+  .exp-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+    font-style: italic;
+  }
+  .exp-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .exp-bullets li {
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.6;
+  }
+  .exp-bullets li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 0.7rem;
+    top: 0.15rem;
+  }
+
+  /* SKILLS */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+  .skill-category {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.8rem;
+    transition: border-color 0.3s;
+  }
+  .skill-category:hover { border-color: rgba(232,201,122,0.3); }
+  .skill-cat-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .skill-tag {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.78rem;
+    color: var(--text);
+  }
+
+  /* PORTFOLIO */
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: pointer;
+  }
+  .project-card:hover { border-color: rgba(232,201,122,0.4); transform: translateY(-4px); }
+  .project-thumb {
+    aspect-ratio: 16/9;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-thumb-overlay {
+    position: absolute; inset: 0;
+    background: rgba(232,201,122,0.05);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .project-card:hover .project-thumb-overlay { opacity: 1; }
+  .project-play {
+    width: 48px; height: 48px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .project-play svg { fill: #0a0a0a; width: 18px; }
+  .project-thumb-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .project-info { padding: 1.2rem 1.4rem; }
+  .project-cat {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .project-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+  .project-client {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  /* editable link field */
+  .project-link-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+  .project-link-row input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.4rem 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .project-link-row input:focus { border-color: var(--accent); color: var(--text); }
+  .project-link-row input::placeholder { color: rgba(136,135,128,0.5); }
+  .open-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 2px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.7rem;
+    color: #0a0a0a;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.3s;
+  }
+  .open-btn:hover { background: var(--accent2); }
+
+  /* CONTACT */
+  .contact-section {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .contact-left h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .contact-left p { color: var(--muted); font-size: 0.95rem; line-height: 1.8; }
+  .contact-details { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+  .contact-detail-item { display: flex; flex-direction: column; gap: 0.2rem; }
+  .contact-detail-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .contact-detail-value { font-size: 0.95rem; color: var(--text); }
+  .contact-detail-value a { color: var(--text); text-decoration: none; transition: color 0.3s; }
+  .contact-detail-value a:hover { color: var(--accent); }
+
+  /* FORM */
+  .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .form-input, .form-textarea {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.3s;
+    resize: none;
+    width: 100%;
+  }
+  .form-input::placeholder, .form-textarea::placeholder { color: rgba(136,135,128,0.4); }
+  .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-textarea { min-height: 120px; }
+  .form-submit {
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 2px;
+    padding: 0.85rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s;
+    align-self: flex-start;
+  }
+  .form-submit:hover { background: var(--accent2); }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  .footer-note {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1rem; }
+    section { padding: 4rem 1.5rem; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+    footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+    .about-stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">SN</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">✦ Video Editor & Content Creator</p>
+  <h1 class="hero-name">SHAHWAIZ<br><span>NADEEM</span></h1>
+  <p class="hero-sub">2+ years crafting high-impact content for fashion brands, global digital media, and educational platforms.</p>
+  <div class="hero-cta">
+    <a href="#portfolio" class="btn btn-primary">View My Work</a>
+    <a href="#contact" class="btn btn-outline">Get In Touch</a>
+  </div>
+  <div class="hero-reel">
+    <div class="reel-placeholder" onclick="window.open('https://www.youtube.com/shorts/YdRtQ6n4WmI', '_blank')">
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <p class="reel-label">▶ Showreel 2024 — Click to add your video link</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label">01 — About</p>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>I'm a <strong>detail-oriented Video Editor</strong> based in Lahore, Pakistan, with a passion for visual storytelling that genuinely connects with audiences.</p>
+      <p>My work spans fast-paced <strong>digital news media</strong>, <strong>luxury fashion campaigns</strong>, and <strong>educational content</strong> — giving me a versatile eye for what makes content stop the scroll.</p>
+      <p>I combine technical editing precision with creative instinct, staying ahead of platform algorithms and emerging AI tools to deliver content that performs.</p>
+      <div class="contact-info">
+        <div class="contact-item"><span class="contact-dot"></span><span>Lahore, Pakistan</span></div>
+        <div class="contact-item"><span class="contact-dot"></span><a href="mailto:techsharz@gmail.com">techsharz@gmail.com</a></div>
+        <div class="contact-item"><span class="contact-dot"></span><a href="tel:+923274517500">+92 327 451 7500</a></div>
+        <div class="contact-item"><span class="contact-dot"></span><a href="https://linkedin.com/in/shahwaiz-nadeem" target="_blank">linkedin.com/in/shahwaiz-nadeem</a></div>
+      </div>
+    </div>
+    <div class="about-stats">
+      <div class="stat-card">
+        <div class="stat-number">2+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Companies</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">5B+</div>
+        <div class="stat-label">Monthly Views Network</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">4</div>
+        <div class="stat-label">Platforms Mastered</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <p class="section-label">02 — Experience</p>
+  <h2 class="section-title">Work History</h2>
+  <div class="exp-list">
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">Mar 2026 — Present</div>
+        <div class="exp-company">Studio16 Creative<br>Lahore, Pakistan</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Video Editor</div>
+        <p class="exp-desc">Professional photography & videography studio specializing in fashion campaigns and brand visual content for top Pakistani fashion labels since 2016.</p>
+        <ul class="exp-bullets">
+          <li>Spearhead end-to-end editing for women's fashion campaigns and Eid collection shoots, delivering polished reels for Instagram.</li>
+          <li>Collaborate with high-profile brands including @streamportmediapakistan, @fujifilm.pakistan, and @sehrishafzal.</li>
+          <li>Manage full post-production pipeline — from raw footage review and color grading to final platform-specific export.</li>
+          <li>Consistently deliver fashion reels that drive engagement across client social media channels.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">Jan 2025 — Mar 2026</div>
+        <div class="exp-company">The Journal Post<br>DHA Phase 2, Lahore</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Video Editor</div>
+        <p class="exp-desc">Global digital media network founded in 2016, headquartered in Dubai with offices in Toronto and Lahore — commanding over 5 billion monthly views across 100+ digital channels.</p>
+        <ul class="exp-bullets">
+          <li>Edited trending celebrity and worldwide news videos for a global audience within a 5B+ monthly view network.</li>
+          <li>Produced fast-paced, platform-optimized videos aligned with real-time trending topics across 100+ digital channels.</li>
+          <li>Optimized content pacing for YouTube, Instagram, Facebook, and TikTok algorithms to improve watch-time performance.</li>
+          <li>Maintained strict consistency in editing style across high-volume upload schedules.</li>
+          <li>Created educational content on online earning strategies, structuring complex topics into clear engaging formats.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-meta">
+        <div class="exp-period">2024 — 2025</div>
+        <div class="exp-company">Future TV HD<br>Pakistan (YouTube)</div>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Video Editor</div>
+        <p class="exp-desc">YouTube-based educational media channel focused on helping Pakistani audiences learn legitimate online earning strategies and digital income methods.</p>
+        <ul class="exp-bullets">
+          <li>Edited educational video content on social media monetization, online earning strategies, and digital platforms.</li>
+          <li>Structured video pacing to maximize audience watch time and retention using educational content best practices.</li>
+          <li>Ensured clean, professional visuals and audio quality, maintaining the channel's educational credibility.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <p class="section-label">03 — Skills</p>
+  <h2 class="section-title">What I Do</h2>
+  <div class="skills-grid">
+    <div class="skill-category">
+      <div class="skill-cat-title">Editing & Post-Production</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Documentary Editing</span>
+        <span class="skill-tag">Cash Cow Video</span>
+        <span class="skill-tag">Short-Form Editing</span>
+        <span class="skill-tag">Short-Form Documentary</span>
+        <span class="skill-tag">Audio Sync & Sound</span>
+        <span class="skill-tag">Basic Motion Graphics</span>
+        <span class="skill-tag">Color Grading</span>
+      </div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-title">Software & Tools</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Adobe Premiere Pro</span>
+        <span class="skill-tag">Adobe Lightroom</span>
+        <span class="skill-tag">Adobe Photoshop</span>
+        <span class="skill-tag">CapCut</span>
+        <span class="skill-tag">Canva</span>
+        <span class="skill-tag">Akool AI</span>
+        <span class="skill-tag">Seedance</span>
+      </div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-title">Content Strategy</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Social Media Optimization</span>
+        <span class="skill-tag">Audience Retention</span>
+        <span class="skill-tag">YouTube</span>
+        <span class="skill-tag">Instagram Reels</span>
+        <span class="skill-tag">TikTok</span>
+        <span class="skill-tag">Facebook Shorts</span>
+      </div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-title">Professional Skills</div>
+      <div class="skill-tags">
+        <span class="skill-tag">File Management</span>
+        <span class="skill-tag">Project Organization</span>
+        <span class="skill-tag">Deadline Handling</span>
+        <span class="skill-tag">Team Collaboration</span>
+        <span class="skill-tag">Client Communication</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <p class="section-label">04 — Portfolio</p>
+  <h2 class="section-title">Selected Work</h2>
+  <div class="portfolio-grid">
+
+    <!-- Card 1 -->
+    <div class="project-card" onclick="window.open('https://drive.google.com/drive/folders/1-pLpyYAdspAQG3v2ozsVv3MBY_As_9Sf', '_blank')">
+      <div class="project-thumb">
+        <p class="project-thumb-label">Fashion Reel</p>
+        <div class="project-thumb-overlay">
+          <div class="project-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-cat">Fashion / Studio16</div>
+        <div class="project-title">Eid Collection Campaign</div>
+        <div class="project-client">Studio16 Creative — 2026</div>
+        <div class="project-link-row">
+          <span style="font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Google Drive Folder</span>
+          <button class="open-btn">Open ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="project-card" onclick="window.open('https://drive.google.com/drive/folders/1-pLpyYAdspAQG3v2ozsVv3MBY_As_9Sf', '_blank')">
+      <div class="project-thumb">
+        <p class="project-thumb-label">Brand Video</p>
+        <div class="project-thumb-overlay">
+          <div class="project-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-cat">Fashion / Studio16</div>
+        <div class="project-title">Women's Fashion Campaign</div>
+        <div class="project-client">Studio16 Creative — 2026</div>
+        <div class="project-link-row">
+          <span style="font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Google Drive Folder</span>
+          <button class="open-btn">Open ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="project-card" onclick="window.open('https://drive.google.com/drive/folders/1De-Zgo4NBFhRWwpVXN_YD7FKCT8GEH5e', '_blank')">
+      <div class="project-thumb">
+        <p class="project-thumb-label">News Edit</p>
+        <div class="project-thumb-overlay">
+          <div class="project-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-cat">Digital News / Journal Post</div>
+        <div class="project-title">Trending Celebrity News Video</div>
+        <div class="project-client">The Journal Post — 2025</div>
+        <div class="project-link-row">
+          <span style="font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Google Drive Folder</span>
+          <button class="open-btn">Open ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="project-card" onclick="window.open('https://drive.google.com/drive/folders/1VISTidea9IyqpUpv2hqkwzDF4CF03nn_', '_blank')">
+      <div class="project-thumb">
+        <p class="project-thumb-label">AI Videos</p>
+        <div class="project-thumb-overlay">
+          <div class="project-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-cat">AI Videos</div>
+        <div class="project-title">AI Informative Videos</div>
+        <div class="project-client">Animated AI Videos</div>
+        <div class="project-link-row">
+          <span style="font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Google Drive Folder</span>
+          <button class="open-btn">Open ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="project-card" onclick="window.open('https://drive.google.com/drive/folders/1834SwqeDZ8angHS7DJAmw0SGA1uDRuWe', '_blank')">
+      <div class="project-thumb">
+        <p class="project-thumb-label">Short-Form</p>
+        <div class="project-thumb-overlay">
+          <div class="project-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-cat">Social Media</div>
+        <div class="project-title">Viral Short-Form Content</div>
+        <div class="project-client">Short-Form Reels & Clips</div>
+        <div class="project-link-row">
+          <span style="font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Google Drive Folder</span>
+          <button class="open-btn">Open ↗</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-section" style="max-width:100%; padding: 6rem 4rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="contact-grid">
+      <div class="contact-left">
+        <p class="section-label">05 — Contact</p>
+        <h2>Let's Work<br><span style="color:var(--accent)">Together</span></h2>
+        <p>Available for freelance, remote, and in-studio engagements. Whether it's a fashion campaign, digital news content, or educational video series — let's create something that connects.</p>
+        <div class="contact-details">
+          <div class="contact-detail-item">
+            <span class="contact-detail-label">Email</span>
+            <span class="contact-detail-value"><a href="mailto:techsharz@gmail.com">techsharz@gmail.com</a></span>
+          </div>
+          <div class="contact-detail-item">
+            <span class="contact-detail-label">Phone</span>
+            <span class="contact-detail-value"><a href="tel:+923274517500">+92 327 451 7500</a></span>
+          </div>
+          <div class="contact-detail-item">
+            <span class="contact-detail-label">LinkedIn</span>
+            <span class="contact-detail-value"><a href="https://linkedin.com/in/shahwaiz-nadeem" target="_blank">linkedin.com/in/shahwaiz-nadeem</a></span>
+          </div>
+          <div class="contact-detail-item">
+            <span class="contact-detail-label">Location</span>
+            <span class="contact-detail-value">Lahore, Pakistan</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="contact-form">
+          <div class="form-group">
+            <label class="form-label">Your Name</label>
+            <input type="text" class="form-input" placeholder="John Smith" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="john@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Project Type</label>
+            <input type="text" class="form-input" placeholder="Fashion Campaign / News / Educational..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message</label>
+            <textarea class="form-textarea" placeholder="Tell me about your project..."></textarea>
+          </div>
+          <button class="form-submit" onclick="alert('To make this form work, connect it to Formspree or EmailJS — ask Claude how!')">Send Message ↗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">SHAHWAIZ NADEEM</div>
+  <div class="footer-note">© 2026 · Video Editor · Lahore, Pakistan</div>
+</footer>
+
+<script>
+function openLink(inputId) {
+  const url = document.getElementById(inputId).value.trim();
+  if (!url) { alert('Please paste a video link first!'); return; }
+  const fullUrl = url.startsWith('http') ? url : 'https://' + url;
+  window.open(fullUrl, '_blank');
+}
+</script>
+
+</body>
+</html>
